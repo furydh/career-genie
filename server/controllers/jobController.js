@@ -3,14 +3,14 @@ const Application = require('../models/application');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 
-// Create a new job (for recruiter)
+
 exports.createJob = async (req, res) => {
   try {
     const { title, company, description } = req.body;
     const job = new Job({ title, company, description, postedBy: req.user.id });
     await job.save();
 
-    // Notify all students about the new job
+
     const students = await User.find({ role: 'student' });
     const notifications = students.map(student => ({
       user: student._id,
@@ -24,7 +24,7 @@ exports.createJob = async (req, res) => {
   }
 };
 
-// Get all jobs posted by the current recruiter
+
 exports.getMyJobs = async (req, res) => {
   try {
     const jobs = await Job.find({ postedBy: req.user.id });
@@ -34,7 +34,7 @@ exports.getMyJobs = async (req, res) => {
   }
 };
 
-// Get applicants for a job
+
 exports.getApplicants = async (req, res) => {
   try {
     const jobId = req.params.jobId;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Notifications from "../components/Notifications";
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -10,6 +11,7 @@ const RecruiterDashboard = () => {
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [postingJob, setPostingJob] = useState(false);
   const [loadingApplicants, setLoadingApplicants] = useState({});
+  const [isVisible, setIsVisible] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -28,6 +30,7 @@ const RecruiterDashboard = () => {
       setLoadingJobs(false);
     };
     fetchJobs();
+    setIsVisible(true);
   }, [token]);
 
   // Fetch applicants for a job
@@ -80,149 +83,214 @@ const RecruiterDashboard = () => {
   };
 
   return (
-    <div className="recruiter-dashboard" style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h2 style={{ color: "#4a90e2", marginBottom: 24 }}>Recruiter Dashboard</h2>
-      <section style={{ marginBottom: 32, background: "#f4f8ff", padding: 20, borderRadius: 8 }}>
-        <h3 style={{ marginBottom: 12 }}>Post a New Job</h3>
-        <form onSubmit={handlePostJob} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <input
-            name="title"
-            placeholder="Job Title"
-            value={form.title}
-            onChange={handleChange}
-            required
-            style={{ padding: 8, borderRadius: 4, border: "1px solid #bcd0ee" }}
-          />
-          <input
-            name="company"
-            placeholder="Company"
-            value={form.company}
-            onChange={handleChange}
-            required
-            style={{ padding: 8, borderRadius: 4, border: "1px solid #bcd0ee" }}
-          />
-          <textarea
-            name="description"
-            placeholder="Job Description"
-            value={form.description}
-            onChange={handleChange}
-            required
-            style={{ padding: 8, borderRadius: 4, border: "1px solid #bcd0ee", minHeight: 60 }}
-          />
-          <button
-            type="submit"
-            disabled={postingJob}
-            style={{
-              background: postingJob ? "#bcd0ee" : "#4a90e2",
-              color: "#fff",
-              border: "none",
-              borderRadius: 4,
-              padding: "10px 0",
-              fontWeight: "bold",
-              cursor: postingJob ? "not-allowed" : "pointer"
+    <div className="dashboard-container">
+      {/* Notifications */}
+      <Notifications />
+      
+      {/* Animated Background */}
+      <div className="animated-bg">
+        <div className="floating-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+          <div className="shape shape-4"></div>
+          <div className="shape shape-5"></div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="dashboard-header">
+        <div className="logo">
+          <span className="logo-text">CareerGenie</span>
+        </div>
+        <div className="user-info">
+          <span className="welcome-text">Welcome, Recruiter!</span>
+          <button 
+            className="logout-btn"
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('role');
+              window.location.href = '/';
             }}
           >
-            {postingJob ? "Posting..." : "Post Job"}
+            Logout
           </button>
-        </form>
-        {message && <div style={{ marginTop: 10, color: "#357ac7" }}>{message}</div>}
-      </section>
+        </div>
+      </header>
 
-      <section>
-        <h3 style={{ marginBottom: 16 }}>Your Posted Jobs</h3>
-        {loadingJobs ? (
-          <div>Loading jobs...</div>
-        ) : jobs.length === 0 ? (
-          <div>No jobs posted yet.</div>
-        ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-            {jobs.map((job) => (
-              <div
-                key={job._id}
-                style={{
-                  background: "#fff",
-                  minWidth: 280,
-                  flex: "1 1 280px",
-                  marginBottom: 16,
-                  padding: 16,
-                  borderRadius: 8,
-                  boxShadow: "0 2px 8px rgba(74,144,226,0.06)",
-                  position: "relative"
-                }}
-              >
-                <strong style={{ fontSize: "1.1rem" }}>{job.title}</strong> <span style={{ color: "#4a90e2" }}>@ {job.company}</span>
-                <div style={{ margin: "8px 0", color: "#444" }}>{job.description}</div>
+      {/* Main Content */}
+      <main className="dashboard-main">
+        <div className={`dashboard-content ${isVisible ? 'fade-in' : ''}`}>
+          {/* Post Job Section */}
+          <section className="dashboard-section">
+            <div className="section-header">
+              <h2 className="section-title">Post a New Job</h2>
+              <p className="section-subtitle">Create job opportunities for talented candidates</p>
+            </div>
+            
+            <div className="post-job-card">
+              <form onSubmit={handlePostJob} className="job-form">
+                <div className="form-group">
+                  <label className="form-label">Job Title</label>
+                  <input
+                    name="title"
+                    placeholder="e.g., Senior Software Engineer"
+                    value={form.title}
+                    onChange={handleChange}
+                    required
+                    className="form-input"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Company</label>
+                  <input
+                    name="company"
+                    placeholder="e.g., Tech Corp"
+                    value={form.company}
+                    onChange={handleChange}
+                    required
+                    className="form-input"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Job Description</label>
+                  <textarea
+                    name="description"
+                    placeholder="Describe the role, requirements, and benefits..."
+                    value={form.description}
+                    onChange={handleChange}
+                    required
+                    className="form-textarea"
+                    rows="4"
+                  />
+                </div>
+                
                 <button
-                  onClick={() => toggleApplicants(job._id)}
-                  style={{
-                    background: "#e2e8f0",
-                    color: "#22223b",
-                    border: "none",
-                    borderRadius: 4,
-                    padding: "6px 12px",
-                    cursor: "pointer",
-                    marginBottom: 8
-                  }}
+                  type="submit"
+                  disabled={postingJob}
+                  className={`post-job-btn ${postingJob ? 'loading' : ''}`}
                 >
-                  {expandedJob === job._id ? "Hide Applicants" : "View Applicants"}
+                  {postingJob ? "Posting..." : "Post Job"}
                 </button>
-                {expandedJob === job._id && (
-                  <div style={{ marginTop: 8 }}>
-                    <strong>Applicants:</strong>
-                    {loadingApplicants[job._id] ? (
-                      <div>Loading...</div>
-                    ) : applicants[job._id] && applicants[job._id].length > 0 ? (
-                      <ul>
-                        {applicants[job._id].map((app) => (
-                          <li key={app._id}>
-                            {app.student?.email || "No email"}
-                            {app.resumeUrl && (
-                              <>
-                                {" | "}
-                                <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer">
-                                  View Resume
-                                </a>
-                              </>
-                            )}
-                            {" | "}
-                            Status: <span style={{ color: app.status === "accepted" ? "#4caf50" : "#e67e22" }}>{app.status}</span>
-                            {app.status !== "accepted" && (
-                              <button
-                                style={{
-                                  marginLeft: 8,
-                                  background: "#4caf50",
-                                  color: "#fff",
-                                  border: "none",
-                                  borderRadius: 4,
-                                  padding: "4px 10px",
-                                  cursor: "pointer"
-                                }}
-                                onClick={async () => {
-                                  const token = localStorage.getItem("token");
-                                  await axios.patch(
-                                    `/api/applications/${app._id}/accept`,
-                                    {},
-                                    { headers: { Authorization: `Bearer ${token}` } }
-                                  );
-                                  // Optionally, refresh applicants list here
-                                }}
-                              >
-                                Accept
-                              </button>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div>No applicants yet.</div>
+              </form>
+              
+              {message && (
+                <div className={`message ${message.includes('✅') ? 'success' : 'error'}`}>
+                  {message}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Posted Jobs Section */}
+          <section className="dashboard-section">
+            <div className="section-header">
+              <h2 className="section-title">Your Posted Jobs</h2>
+              <p className="section-subtitle">Manage your job postings and review applications</p>
+            </div>
+            
+            {loadingJobs ? (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <span>Loading jobs...</span>
+              </div>
+            ) : jobs.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">📋</div>
+                <h3>No jobs posted yet</h3>
+                <p>Start by posting your first job opportunity above</p>
+              </div>
+            ) : (
+              <div className="jobs-grid">
+                {jobs.map((job) => (
+                  <div key={job._id} className="recruiter-job-card">
+                    <div className="job-header">
+                      <h3 className="job-title">{job.title}</h3>
+                      <span className="job-company">@ {job.company}</span>
+                    </div>
+                    
+                    <p className="job-description">{job.description}</p>
+                    
+                    <button
+                      onClick={() => toggleApplicants(job._id)}
+                      className="view-applicants-btn"
+                    >
+                      {expandedJob === job._id ? "Hide Applicants" : "View Applicants"}
+                    </button>
+                    
+                    {expandedJob === job._id && (
+                      <div className="applicants-section">
+                        <h4 className="applicants-title">Applicants</h4>
+                        {loadingApplicants[job._id] ? (
+                          <div className="loading-state">
+                            <div className="spinner"></div>
+                            <span>Loading applicants...</span>
+                          </div>
+                        ) : applicants[job._id] && applicants[job._id].length > 0 ? (
+                          <div className="applicants-list">
+                            {applicants[job._id].map((app) => (
+                              <div key={app._id} className="applicant-card">
+                                <div className="applicant-info">
+                                  <span className="applicant-email">
+                                    {app.student?.email || "No email"}
+                                  </span>
+                                  <span className={`status-badge ${app.status}`}>
+                                    {app.status}
+                                  </span>
+                                </div>
+                                
+                                <div className="applicant-actions">
+                                  {app.resumeUrl && (
+                                    <a 
+                                      href={app.resumeUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="resume-link"
+                                    >
+                                      📄 View Resume
+                                    </a>
+                                  )}
+                                  
+                                  {app.status !== "accepted" && (
+                                    <button
+                                      className="accept-btn"
+                                      onClick={async () => {
+                                        try {
+                                          await axios.patch(`/api/applications/${app._id}/accept`,
+                                            {},
+                                            { headers: { Authorization: `Bearer ${token}` } }
+                                          );
+                                          setMessage("Application accepted!");
+                                          // Refresh applicants
+                                          fetchApplicants(job._id);
+                                        } catch {
+                                          setMessage("Failed to accept application.");
+                                        }
+                                      }}
+                                    >
+                                      Accept
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="empty-applicants">
+                            <p>No applicants yet for this position</p>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+            )}
+          </section>
+        </div>
+      </main>
     </div>
   );
 };
